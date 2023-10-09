@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.app.feng.fixtablelayout.FixTableLayout
         android:id="@+id/fixTableLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:fixtable_divider_color="@color/table_divider_color"
-        app:fixtable_title_color="#C5CDEF"
-        app:fixtable_divider_height="@dimen/table_divider_height"
-        app:fixtable_item_gravity="CENTER"
-        app:fixtable_item_top_bottom_padding="8dp"
+        app:fixtable_divider_height="0.5dp"
+        app:fixtable_item_gravity="center_vertical|left"
+        app:fixtable_item_left_right_padding="15dp"
+        app:fixtable_item_top_bottom_padding="17dp"
         app:fixtable_item_width="100dp"
-        app:fixtable_show_left_view_shadow="true"
-        />
+        app:fixtable_show_left_view_shadow="false"
+        app:fixtable_show_title_view_shadow="false"
+        app:fixtable_title_bg_color="#FFFFFF"
+        app:fixtable_title_gravity="center_vertical|left"
+        app:fixtable_title_left_right_padding="15dp"
+        app:fixtable_title_text_color="#7D8491"
+        app:fixtable_floating_title="true"
+        app:fixtable_title_top_bottom_padding="7.5dp" />
 
 </LinearLayout>
 

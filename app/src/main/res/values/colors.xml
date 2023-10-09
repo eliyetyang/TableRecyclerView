@@ -4,6 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="table_divider_color">#b1b1b1</color>
+    <color name="table_divider_color">#F6F6F6</color>
 
 </resources>

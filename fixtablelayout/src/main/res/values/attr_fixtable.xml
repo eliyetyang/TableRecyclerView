@@ -2,21 +2,100 @@
 <resources>
 
     <declare-styleable name="FixTableLayout">
-        <attr name="fixtable_divider_color" format="color"/>
-        <attr name="fixtable_divider_height" format="dimension"/>
-        <attr name="fixtable_column_1_color" format="color"/>
-        <attr name="fixtable_column_2_color" format="color"/>
-        <attr name="fixtable_title_color" format="color"/>
-        <attr name="fixtable_item_width" format="dimension"/>
-        <attr name="fixtable_item_top_bottom_padding" format="dimension"/>
-        <attr name="fixtable_item_gravity" format="enum">
-            <enum name="CENTER" value="0"/>
-            <enum name="LEFT" value="1"/>
-            <enum name="RIGHT" value="2"/>
+        <attr name="fixtable_divider_color" format="color" />
+        <attr name="fixtable_divider_height" format="dimension" />
+        <attr name="fixtable_column_1_color" format="color" />
+        <attr name="fixtable_column_2_color" format="color" />
+        <attr name="fixtable_title_bg_color" format="color" />
+        <attr name="fixtable_title_text_color" format="color" />
+        <attr name="fixtable_content_text_color" format="color" />
+        <attr name="fixtable_item_width" format="dimension" />
+        <attr name="fixtable_item_top_bottom_padding" format="dimension" />
+        <attr name="fixtable_item_left_right_padding" format="dimension" />
+        <attr name="fixtable_title_top_bottom_padding" format="dimension" />
+        <attr name="fixtable_title_left_right_padding" format="dimension" />
+        <attr name="fixtable_title_text_size" format="dimension" />
+        <attr name="fixtable_content_text_size" format="dimension" />
+        <attr name="fixtable_item_gravity" format="flags">
+            <flag name="top" value="0x30" />
+            <!-- Push object to the bottom of its container, not changing its size. -->
+            <flag name="bottom" value="0x50" />
+            <!-- Push object to the left of its container, not changing its size. -->
+            <flag name="left" value="0x03" />
+            <!-- Push object to the right of its container, not changing its size. -->
+            <flag name="right" value="0x05" />
+            <!-- Place object in the vertical center of its container, not changing its size. -->
+            <flag name="center_vertical" value="0x10" />
+            <!-- Grow the vertical size of the object if needed so it completely fills its container. -->
+            <flag name="fill_vertical" value="0x70" />
+            <!-- Place object in the horizontal center of its container, not changing its size. -->
+            <flag name="center_horizontal" value="0x01" />
+            <!-- Grow the horizontal size of the object if needed so it completely fills its container. -->
+            <flag name="fill_horizontal" value="0x07" />
+            <!-- Place the object in the center of its container in both the vertical and horizontal axis, not changing its size. -->
+            <flag name="center" value="0x11" />
+            <!-- Grow the horizontal and vertical size of the object if needed so it completely fills its container. -->
+            <flag name="fill" value="0x77" />
+            <!-- Additional option that can be set to have the top and/or bottom edges of
+                 the child clipped to its container's bounds.
+                 The clip will be based on the vertical gravity: a top gravity will clip the bottom
+                 edge, a bottom gravity will clip the top edge, and neither will clip both edges. -->
+            <flag name="clip_vertical" value="0x80" />
+            <!-- Additional option that can be set to have the left and/or right edges of
+                 the child clipped to its container's bounds.
+                 The clip will be based on the horizontal gravity: a left gravity will clip the right
+                 edge, a right gravity will clip the left edge, and neither will clip both edges. -->
+            <flag name="clip_horizontal" value="0x08" />
+            <!-- Push object to the beginning of its container, not changing its size. -->
+            <flag name="start" value="0x00800003" />
+            <!-- Push object to the end of its container, not changing its size. -->
+            <flag name="end" value="0x00800005" />
         </attr>
 
-        <attr name="fixtable_show_item_divider" format="boolean"/>
-        <attr name="fixtable_show_left_view_shadow" format="boolean"/>
+        <attr name="fixtable_title_gravity" format="flags">
+            <flag name="top" value="0x30" />
+            <!-- Push object to the bottom of its container, not changing its size. -->
+            <flag name="bottom" value="0x50" />
+            <!-- Push object to the left of its container, not changing its size. -->
+            <flag name="left" value="0x03" />
+            <!-- Push object to the right of its container, not changing its size. -->
+            <flag name="right" value="0x05" />
+            <!-- Place object in the vertical center of its container, not changing its size. -->
+            <flag name="center_vertical" value="0x10" />
+            <!-- Grow the vertical size of the object if needed so it completely fills its container. -->
+            <flag name="fill_vertical" value="0x70" />
+            <!-- Place object in the horizontal center of its container, not changing its size. -->
+            <flag name="center_horizontal" value="0x01" />
+            <!-- Grow the horizontal size of the object if needed so it completely fills its container. -->
+            <flag name="fill_horizontal" value="0x07" />
+            <!-- Place the object in the center of its container in both the vertical and horizontal axis, not changing its size. -->
+            <flag name="center" value="0x11" />
+            <!-- Grow the horizontal and vertical size of the object if needed so it completely fills its container. -->
+            <flag name="fill" value="0x77" />
+            <!-- Additional option that can be set to have the top and/or bottom edges of
+                 the child clipped to its container's bounds.
+                 The clip will be based on the vertical gravity: a top gravity will clip the bottom
+                 edge, a bottom gravity will clip the top edge, and neither will clip both edges. -->
+            <flag name="clip_vertical" value="0x80" />
+            <!-- Additional option that can be set to have the left and/or right edges of
+                 the child clipped to its container's bounds.
+                 The clip will be based on the horizontal gravity: a left gravity will clip the right
+                 edge, a right gravity will clip the left edge, and neither will clip both edges. -->
+            <flag name="clip_horizontal" value="0x08" />
+            <!-- Push object to the beginning of its container, not changing its size. -->
+            <flag name="start" value="0x00800003" />
+            <!-- Push object to the end of its container, not changing its size. -->
+            <flag name="end" value="0x00800005" />
+        </attr>
+
+        <attr name="fixtable_show_item_divider" format="boolean" />
+        <attr name="fixtable_show_left_view_shadow" format="boolean" />
+        <attr name="fixtable_show_title_view_shadow" format="boolean" />
+        <attr name="fixtable_show_left_view" format="boolean" />
+        <attr name="fixtable_show_left_title_view" format="boolean" />
+        <attr name="fixtable_floating_title" format="boolean" />
+        <attr name="fixtable_show_title_line_count" format="integer" />
+        <attr name="fixtable_show_content_line_count" format="integer" />
     </declare-styleable>
 
 </resources>

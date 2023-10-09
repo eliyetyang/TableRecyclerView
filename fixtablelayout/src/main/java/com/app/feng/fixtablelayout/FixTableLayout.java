@@ -5,11 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.TypedArrayUtils;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +21,9 @@ import com.app.feng.fixtablelayout.widget.TableLayoutManager;
 
 import java.lang.ref.WeakReference;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * Created by feng on 2017/4/2.
  */
@@ -36,18 +35,38 @@ public class FixTableLayout extends FrameLayout {
     RecyclerView leftViews;
     TextView left_top_view;
     View leftViewShadow;
+    View topViewShadow;
     FrameLayout fl_load_mask;
 
     int divider_height;
     int divider_color;
     int col_1_color;
     int col_2_color;
-    int title_color;
+    int title_bg_color;
+    int content_text_color;
     int item_width;
-    int item_padding;
+    int[] contentItemWidthArray;
+    int item_tbPadding;
+    int item_lfPadding;
     int item_gravity;
+    float item_text_size;
+
+    int title_text_color;
+    int title_tbPadding;
+    int title_lrPadding;
+    int[] titleItemWidthArray;
+    int title_gravity;
+    float title_text_size;
+
+    int titleLineCount = 1;
+    int contentLineCount = 2;
 
     boolean show_left_shadow = false;
+    boolean show_top_shadow = false;
+    boolean show_left_view = false;
+    boolean show_left_title_view = false;
+    boolean floating_title = false;
+
     private IDataAdapter dataAdapter;
 
     private boolean isLoading = false;
@@ -77,27 +96,38 @@ public class FixTableLayout extends FrameLayout {
                 Color.WHITE);
         col_2_color = array.getColor(R.styleable.FixTableLayout_fixtable_column_2_color,
                 Color.WHITE);
-        title_color = array.getColor(R.styleable.FixTableLayout_fixtable_title_color, Color.GRAY);
+
+        content_text_color = array.getColor(R.styleable.FixTableLayout_fixtable_content_text_color, Color.BLACK);
         item_width = array.getDimensionPixelOffset(R.styleable.FixTableLayout_fixtable_item_width,
                 getResources().getDimensionPixelOffset(R.dimen.item_width_default_value));
-        item_padding = array.getDimensionPixelOffset(
+        item_tbPadding = array.getDimensionPixelOffset(
                 R.styleable.FixTableLayout_fixtable_item_top_bottom_padding, 0);
+        item_lfPadding = array.getDimensionPixelOffset(
+                R.styleable.FixTableLayout_fixtable_item_left_right_padding, 0);
         item_gravity = array.getInteger(R.styleable.FixTableLayout_fixtable_item_gravity, 0);
+        item_text_size = array.getDimension(R.styleable.FixTableLayout_fixtable_content_text_size, 15f);
+        contentLineCount = array.getInteger(R.styleable.FixTableLayout_fixtable_show_content_line_count, 2);
 
-        switch (item_gravity) {
-            case 0:
-                item_gravity = Gravity.CENTER;
-                break;
-            case 1:
-                item_gravity = Gravity.START | Gravity.CENTER_VERTICAL;
-                break;
-            case 2:
-                item_gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-                break;
-        }
+        title_bg_color = array.getColor(R.styleable.FixTableLayout_fixtable_title_bg_color, Color.GRAY);
+        title_tbPadding = array.getDimensionPixelOffset(
+                R.styleable.FixTableLayout_fixtable_title_top_bottom_padding, 0);
+        title_lrPadding = array.getDimensionPixelOffset(
+                R.styleable.FixTableLayout_fixtable_title_left_right_padding, 0);
+        title_gravity = array.getInteger(R.styleable.FixTableLayout_fixtable_title_gravity, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+        title_text_color = array.getColor(R.styleable.FixTableLayout_fixtable_title_text_color, Color.BLACK);
+        title_text_size = array.getDimension(R.styleable.FixTableLayout_fixtable_title_text_size, 13f);
+        titleLineCount = array.getInteger(R.styleable.FixTableLayout_fixtable_show_title_line_count, 1);
 
         show_left_shadow = array.getBoolean(
                 R.styleable.FixTableLayout_fixtable_show_left_view_shadow, false);
+        show_top_shadow = array.getBoolean(
+                R.styleable.FixTableLayout_fixtable_show_title_view_shadow, false);
+        show_left_view = array.getBoolean(
+                R.styleable.FixTableLayout_fixtable_show_left_view, false);
+        show_left_title_view = array.getBoolean(
+                R.styleable.FixTableLayout_fixtable_show_left_title_view, false);
+        floating_title = array.getBoolean(
+                R.styleable.FixTableLayout_fixtable_floating_title, false);
 
         array.recycle();
 
@@ -111,44 +141,33 @@ public class FixTableLayout extends FrameLayout {
         titleView = (HorizontalScrollView) view.findViewById(R.id.titleView);
         leftViews = (RecyclerView) view.findViewById(R.id.leftViews);
         left_top_view = (TextView) view.findViewById(R.id.left_top_view);
+        topViewShadow = view.findViewById(R.id.titleView_shadows);
         leftViewShadow = view.findViewById(R.id.leftView_shadows);
         fl_load_mask = (FrameLayout) view.findViewById(R.id.load_mask);
 
         TableLayoutManager t1 = new TableLayoutManager();
-        TableLayoutManager t2 = new TableLayoutManager();
+        recyclerView.setLayoutManager(t1);
 
 //        Log.i("feng"," -- t : " + t1.toString().substring(54) + " t_left: " + t2.toString()
 //                .substring(54));
-
-        recyclerView.setLayoutManager(t1);
-        leftViews.setLayoutManager(t2);
-
-        leftViews.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //将事件发送到RV
-                recyclerView.onTouchEvent(event);
-                return true;
-            }
-        });
-
-        titleView.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                recyclerView.onTouchEvent(event);
-                return true;
-            }
-        });
-
-        if (show_left_shadow) {
-            leftViewShadow.setVisibility(VISIBLE);
-        } else {
-            leftViewShadow.setVisibility(GONE);
+        if (!show_left_title_view) {
+            left_top_view.setVisibility(View.GONE);
         }
 
-        SingleLineItemDecoration itemDecoration = new SingleLineItemDecoration(divider_height, divider_color);
+        if (floating_title) {
+            titleView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    recyclerView.onTouchEvent(event);
+                    return true;
+                }
+            });
+        }
 
-        leftViews.addItemDecoration(itemDecoration);
+        leftViewShadow.setVisibility(show_left_shadow && show_left_view ? View.VISIBLE : View.GONE);
+        topViewShadow.setVisibility(show_top_shadow && show_left_title_view ? View.VISIBLE : View.GONE);
+
+        SingleLineItemDecoration itemDecoration = new SingleLineItemDecoration(divider_height, divider_color);
         recyclerView.addItemDecoration(itemDecoration);
 
         //titleView 只做横向滚动   leftView 只做纵向滚动
@@ -157,10 +176,47 @@ public class FixTableLayout extends FrameLayout {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 titleView.scrollBy(dx, 0);
-                leftViews.scrollBy(0, dy);
+                if (show_left_view) {
+                    leftViews.scrollBy(0, dy);
+                }
             }
         });
 
+        if (show_left_view) {
+            TableLayoutManager t2 = new TableLayoutManager();
+            leftViews.setLayoutManager(t2);
+            leftViews.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    //将事件发送到RV
+                    recyclerView.onTouchEvent(event);
+                    return true;
+                }
+            });
+            leftViews.addItemDecoration(itemDecoration);
+        } else {
+            leftViews.setVisibility(View.GONE);
+        }
+//
+//        left_top_view.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * 需要在{@link #setAdapter}之前调用。
+     *
+     * @param contentItemWidthArray
+     */
+    public void setContentItemWidthArray(int[] contentItemWidthArray) {
+        this.contentItemWidthArray = contentItemWidthArray;
+    }
+
+    /**
+     * 需要在{@link #setAdapter}之前调用。
+     *
+     * @param titleItemWidthArray
+     */
+    public void setTitleItemWidthArray(int[] titleItemWidthArray) {
+        this.titleItemWidthArray = titleItemWidthArray;
     }
 
     public void setAdapter(IDataAdapter dataAdapter) {
@@ -208,6 +264,7 @@ public class FixTableLayout extends FrameLayout {
 
     /**
      * 只有 enableLoadMoreData()被执行此方法设置才有效果
+     *
      * @param loadMoreListener
      */
     public void setLoadMoreListener(ILoadMoreListener loadMoreListener) {
@@ -216,12 +273,19 @@ public class FixTableLayout extends FrameLayout {
 
     private void initRecyclerViewAdapter() {
         TableAdapter.Builder builder = new TableAdapter.Builder();
-        TableAdapter tableAdapter = builder.setLeft_top_view(left_top_view)
-                .setTitleView(titleView)
-                .setParametersHolder(
-                        new TableAdapter.ParametersHolder(col_1_color, col_2_color, title_color,
-                                item_width, item_padding, item_gravity))
-                .setLeftViews(leftViews)
+        TableAdapter tableAdapter = builder.setLeft_top_view(show_left_title_view ? left_top_view : null)
+                .setTitleView(floating_title ? titleView : null)
+                .setContentParametersHolder(
+                        new TableAdapter.ParametersHolder(col_1_color, col_2_color, title_bg_color,
+                                content_text_color, item_text_size, contentLineCount,
+                                item_width, item_tbPadding, item_lfPadding,
+                                item_gravity, contentItemWidthArray))
+                .setTitleParametersHolder(
+                        new TableAdapter.ParametersHolder(col_1_color, col_2_color, title_bg_color,
+                                title_text_color, title_text_size, titleLineCount,
+                                item_width, title_tbPadding, title_lrPadding,
+                                title_gravity, titleItemWidthArray))
+                .setLeftViews(show_left_view ? leftViews : null)
                 .setDataAdapter(dataAdapter)
                 .create();
 

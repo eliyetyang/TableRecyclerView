@@ -1,8 +1,8 @@
 package com.app.feng.fixtablelayout.widget;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,18 +14,18 @@ import androidx.annotation.Nullable;
  * Created by feng on 2017/3/29.
  */
 
-public class SingleLineLinearLayout extends ViewGroup {
+public class ContentLineLinearLayout extends ViewGroup {
 
-    public SingleLineLinearLayout(Context context) {
+    public ContentLineLinearLayout(Context context) {
         this(context, null);
     }
 
-    public SingleLineLinearLayout(
+    public ContentLineLinearLayout(
             Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SingleLineLinearLayout(
+    public ContentLineLinearLayout(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
@@ -43,20 +43,23 @@ public class SingleLineLinearLayout extends ViewGroup {
 //              "single 调用 onMeasure - widthMode :" + widthMode + " width size:  " + widthSize + " height size " + heightSize);
 
         for (int i = 0; i < getChildCount(); i++) {
-            TextView childView = (TextView) getChildAt(i);
-            childView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            childView.setFocusableInTouchMode(true);
-            childView.setFocusable(true);
-            childView.setSingleLine();
-            childView.setMarqueeRepeatLimit(1);
+            View childView = getChildAt(i);
+
             int widthChild = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED);
             int heightChild = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED);
 
             childView.measure(widthChild, heightChild);
-
+//            Log.d("TAG", "onMeasure: childWidth = " + childView.getMeasuredWidth() + "; i = " + i);
+            Log.i("TAG", "onMeasure: height = " + height + "; childViewHeight = " + childView.getMeasuredHeight() + "; i = " + i);
             width += childView.getMeasuredWidth();
             height = Math.max(height, childView.getMeasuredHeight());
         }
+
+        for (int i = 0; i < getChildCount(); i++) {
+            TextView childView = (TextView) getChildAt(i);
+            childView.setHeight(height);
+        }
+
         setMeasuredDimension(width, height);
     }
 
@@ -73,12 +76,8 @@ public class SingleLineLinearLayout extends ViewGroup {
             int tempRight = tempLeft + childView.getMeasuredWidth();
             int tempT = 0;
             int tempB = childView.getMeasuredHeight();
-            if (tempHeight == 0) {
-                tempHeight = tempB;
-            } else if (tempB != tempHeight) {
-                tempB = tempHeight;
-            }
-            childView.layout(tempLeft, tempT, tempRight, tempB);
+            Log.d("TAG", "onLayout: childHeight = " + childView.getHeight() + "; measureHeight = " + childView.getMeasuredHeight());
+            childView.layout(tempLeft, tempT, tempRight, getMeasuredHeight());
             tempLeft += childView.getMeasuredWidth();
         }
     }
